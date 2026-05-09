@@ -43,5 +43,5 @@ const envSchema = z.object({
 export const env = envSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL || "http://localhost:3000",
 });
