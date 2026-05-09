@@ -1,0 +1,128 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  BookOpenText,
+  LayoutDashboard,
+  LogOut,
+  MoonStar,
+  Search,
+  Sparkles,
+  SunMedium,
+} from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+
+const navItems = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/stickers", label: "Figurinhas", icon: BookOpenText },
+  { href: "/search", label: "Busca", icon: Search },
+  { href: "/stats", label: "Estatísticas", icon: Sparkles },
+];
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { data: session } = useSession();
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    if (typeof window === "undefined") {
+      return "dark";
+    }
+
+    return (
+      (window.localStorage.getItem("figurinha-theme") as
+        | "dark"
+        | "light"
+        | null) ?? "dark"
+    );
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    window.localStorage.setItem("figurinha-theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.dataset.theme = nextTheme;
+    window.localStorage.setItem("figurinha-theme", nextTheme);
+  };
+
+  return (
+    <div className="min-h-screen">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-8 pt-4 sm:px-6 lg:px-8">
+        <header className="sticky top-0 z-30 rounded-[32px] border border-white/10 bg-slate-950/60 px-4 py-3 backdrop-blur-xl">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-sky-500 text-slate-950 shadow-lg shadow-cyan-500/25">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-200">
+                  Figurinhas da Copa
+                </p>
+                <p className="text-xs text-slate-400">
+                  Controle inteligente do álbum
+                </p>
+              </div>
+            </Link>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm text-slate-100 transition hover:bg-white/10"
+              >
+                {theme === "dark" ? (
+                  <SunMedium className="h-4 w-4" />
+                ) : (
+                  <MoonStar className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline">Tema</span>
+              </button>
+              {session?.user ? (
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm text-slate-100 transition hover:bg-white/10"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Sair</span>
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex h-11 items-center rounded-full bg-cyan-400 px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                >
+                  Entrar
+                </Link>
+              )}
+            </div>
+          </div>
+          <nav className="mt-4 flex gap-2 overflow-x-auto pb-1 w-full">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const active = pathname === item.href;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex flex-shrink-0 min-w-max items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
+                    active
+                      ? "bg-white text-slate-950"
+                      : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </header>
+        <main className="flex-1 py-5">{children}</main>
+      </div>
+    </div>
+  );
+}

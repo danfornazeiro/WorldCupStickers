@@ -1,65 +1,181 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getServerSession } from "next-auth/next";
+import { and, eq } from "drizzle-orm";
+import { authOptions } from "@/auth";
+import { Card, SectionTitle } from "@/components/ui";
+import { computeAlbumStats } from "@/lib/album";
+import { db } from "@/lib/db";
+import { stickers, userStickers } from "@/db/schema";
 
-export default function Home() {
+type SessionUser = {
+  user: {
+    id: string;
+    name?: string | null;
+    email?: string | null;
+  };
+};
+
+export default async function HomePage() {
+  const session = (await getServerSession(
+    authOptions as never,
+  )) as SessionUser | null;
+
+  if (!session?.user?.id) {
+    return null;
+  }
+
+  const rows = await db
+    .select({
+      id: stickers.id,
+      code: stickers.code,
+      country: stickers.country,
+      type: stickers.type,
+      status: userStickers.status,
+      repeatedCount: userStickers.repeatedCount,
+    })
+    .from(stickers)
+    .leftJoin(
+      userStickers,
+      and(
+        eq(userStickers.stickerId, stickers.id),
+        eq(userStickers.userId, session.user.id),
+      ),
+    );
+
+  const stats = computeAlbumStats(
+    rows.map((row) => ({
+      ...row,
+      status: row.status ?? null,
+      repeatedCount: row.repeatedCount ?? 0,
+    })),
+  );
+
+  const summaryCards = [
+    {
+      label: "Coladas",
+      value: stats.pasted,
+      tone: "from-emerald-400 to-cyan-400",
+    },
+    {
+      label: "Faltando",
+      value: stats.missing,
+      tone: "from-rose-400 to-orange-400",
+    },
+    {
+      label: "Repetidas",
+      value: stats.repeated,
+      tone: "from-amber-300 to-yellow-500",
+    },
+    {
+      label: "% Completa",
+      value: `${stats.complete}%`,
+      tone: "from-sky-400 to-indigo-400",
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="space-y-6">
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <Card className="relative overflow-hidden p-6 sm:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(89,240,207,0.18),transparent_35%)]" />
+          <div className="relative space-y-6">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-cyan-300">
+                Bem-vindo, {session.user.name ?? "colecionador"}
+              </p>
+              <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+                Controle o álbum da Copa com uma interface rápida, bonita e
+                pensada para mobile.
+              </h1>
+              <p className="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+                Marque coladas, faltando e repetidas, veja estatísticas em tempo
+                real e mantenha tudo salvo por usuário no Neon PostgreSQL.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {summaryCards.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-3xl border border-white/10 bg-slate-950/40 p-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-white">
+                    {item.value}
+                  </p>
+                  <div
+                    className={`mt-3 h-1.5 rounded-full bg-linear-to-r ${item.tone}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <div className="mb-2 flex items-center justify-between text-sm text-slate-300">
+                <span>Progresso do álbum</span>
+                <span>{stats.complete}%</span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-linear-to-r from-cyan-400 via-emerald-400 to-lime-300"
+                  style={{ width: `${stats.complete}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/stickers"
+                className="inline-flex h-12 items-center rounded-2xl bg-white px-5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
+              >
+                Abrir figurinhas
+              </Link>
+              <Link
+                href="/stats"
+                className="inline-flex h-12 items-center rounded-2xl border border-white/10 bg-white/5 px-5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Ver dashboard
+              </Link>
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <Card>
+            <SectionTitle eyebrow="Visão geral" title="Resumo do álbum" />
+            <div className="mt-4 space-y-3 text-sm text-slate-300">
+              <p>
+                Total de figurinhas:{" "}
+                <span className="text-white">{stats.total}</span>
+              </p>
+              <p>
+                Seleção mais completa:{" "}
+                <span className="text-white">
+                  {stats.mostComplete?.country ?? "-"}
+                </span>
+              </p>
+              <p>
+                Seleção menos completa:{" "}
+                <span className="text-white">
+                  {stats.leastComplete?.country ?? "-"}
+                </span>
+              </p>
+            </div>
+          </Card>
+          <Card>
+            <SectionTitle
+              eyebrow="Persistência"
+              title="Dados salvos por usuário"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <p className="mt-4 text-sm leading-6 text-slate-300">
+              Cada atualização grava o status da figurinha no banco, com
+              autenticação por credenciais e cookies seguros via NextAuth.
+            </p>
+          </Card>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
