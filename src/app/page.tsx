@@ -89,7 +89,7 @@ export default async function HomePage() {
               </h1>
               <p className="max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
                 Marque coladas, faltando e repetidas, veja estatísticas em tempo
-                real e mantenha tudo salvo por usuário no Neon PostgreSQL.
+                real e mantenha tudo salvo por usuário.
               </p>
             </div>
 

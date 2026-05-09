@@ -13,6 +13,7 @@ import {
   SunMedium,
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -55,8 +56,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-30 rounded-[32px] border border-white/10 bg-slate-950/60 px-4 py-3 backdrop-blur-xl">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <Link href="/" className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-sky-500 text-slate-950 shadow-lg shadow-cyan-500/25">
-                <Sparkles className="h-5 w-5" />
+              <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-cyan-500/25">
+                <Image
+                  src="/logo.png"
+                  alt="Logo Figurinhas da Copa"
+                  className="h-full w-full object-cover"
+                  width={100}
+                  height={100}
+                />
               </div>
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-cyan-200">
