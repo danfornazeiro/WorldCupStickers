@@ -6,7 +6,7 @@ export function Card({
 }: PropsWithChildren<{ className?: string }>) {
   return (
     <div
-      className={`rounded-3xl border border-white/10 bg-white/5 p-5 shadow-2xl shadow-slate-950/20 backdrop-blur-xl ${className}`}
+      className={`rounded-3xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-slate-950/10 ${className}`}
     >
       {children}
     </div>
@@ -70,7 +70,7 @@ export function Button(props: ComponentPropsWithoutRef<"button">) {
   return (
     <button
       {...props}
-      className={`inline-flex h-12 items-center justify-center rounded-2xl bg-linear-to-r from-cyan-400 via-emerald-400 to-lime-300 px-5 text-sm font-semibold text-slate-950 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 ${props.className ?? ""}`}
+      className={`inline-flex h-12 items-center justify-center rounded-2xl bg-linear-to-r from-cyan-400 via-emerald-400 to-lime-300 px-5 text-sm font-semibold text-slate-950 transition duration-150 will-change-transform hover:-translate-y-0.5 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 ${props.className ?? ""}`}
     />
   );
 }

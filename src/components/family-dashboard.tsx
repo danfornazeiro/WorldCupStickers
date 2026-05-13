@@ -109,8 +109,12 @@ export function FamilyDashboard({
   const { data, isLoading, isFetching } = useQuery({
     queryKey: ["family"],
     queryFn: fetchFamily,
-    refetchInterval: 4000,
-    refetchIntervalInBackground: true,
+    staleTime: 15_000,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 
   const family = data?.family ?? null;

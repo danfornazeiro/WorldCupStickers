@@ -55,7 +55,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-8 pt-4 sm:px-6 lg:px-8">
-        <header className="sticky top-0 z-30 rounded-4xl border border-white/10 bg-slate-950/60 px-4 py-3 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 rounded-4xl border border-white/10 bg-slate-950/80 px-4 py-3 backdrop-blur-md">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-cyan-500/25">

@@ -1,20 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  BarChart,
-  Bar,
-  CartesianGrid,
-} from "recharts";
 import { Card, SectionTitle } from "@/components/ui";
 import { ShareActions } from "@/components/share-actions";
 import type { StickerWithState } from "@/lib/album";
@@ -57,21 +46,32 @@ async function fetchStickers() {
   };
 }
 
-const COLORS = ["#59f0cf", "#7ae0ff", "#fbbf24", "#fb7185"];
+const StatsCharts = dynamic(() => import("@/components/stats-charts"), {
+  ssr: false,
+  loading: () => <Card className="h-128 animate-pulse bg-white/5" />,
+});
 
 export function StatsDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
-    refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    staleTime: 20_000,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 
   const { data: stickersData, isLoading: stickersLoading } = useQuery({
     queryKey: ["stickers", { limit: 9999 }],
     queryFn: fetchStickers,
-    refetchInterval: 5000,
-    refetchIntervalInBackground: true,
+    staleTime: 20_000,
+    gcTime: 5 * 60 * 1000,
+    refetchInterval: 30_000,
+    refetchIntervalInBackground: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
   });
 
   if (isLoading || stickersLoading) {
@@ -82,11 +82,14 @@ export function StatsDashboard() {
     return null;
   }
 
-  const pieData = [
-    { name: "Coladas", value: data.pasted },
-    { name: "Faltando", value: data.missing },
-    { name: "Repetidas (itens)", value: data.repeatedCount },
-  ];
+  const pieData = useMemo(
+    () => [
+      { name: "Coladas", value: data.pasted },
+      { name: "Faltando", value: data.missing },
+      { name: "Repetidas (itens)", value: data.repeatedCount },
+    ],
+    [data.missing, data.pasted, data.repeatedCount],
+  );
 
   return (
     <motion.div
@@ -124,79 +127,7 @@ export function StatsDashboard() {
         ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
-        <Card className="h-90">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-                Por seleção
-              </p>
-              <h3 className="text-lg font-semibold text-white">
-                Progresso de cada grupo
-              </h3>
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height="85%">
-            <BarChart data={data.groups.slice(0, 12)}>
-              <CartesianGrid stroke="rgba(255,255,255,0.08)" vertical={false} />
-              <XAxis
-                dataKey="code"
-                stroke="rgba(255,255,255,0.35)"
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                stroke="rgba(255,255,255,0.35)"
-                tickLine={false}
-                axisLine={false}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(8, 14, 28, 0.95)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 16,
-                }}
-              />
-              <Bar dataKey="progress" radius={[14, 14, 0, 0]} fill="#59f0cf" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="h-90">
-          <div className="mb-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-              Resumo visual
-            </p>
-            <h3 className="text-lg font-semibold text-white">
-              Distribuição por status
-            </h3>
-          </div>
-          <ResponsiveContainer width="100%" height="75%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={70}
-                outerRadius={110}
-                paddingAngle={4}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "rgba(8, 14, 28, 0.95)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 16,
-                }}
-              />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-      </div>
+      <StatsCharts groups={data.groups} pieData={pieData} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
