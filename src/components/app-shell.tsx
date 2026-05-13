@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -77,6 +78,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </div>
             </Link>
             <div className="flex shrink-0 items-center gap-2">
+              <PwaInstallButton />
               <button
                 type="button"
                 onClick={toggleTheme}
