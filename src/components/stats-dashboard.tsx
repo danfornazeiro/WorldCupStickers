@@ -74,6 +74,15 @@ export function StatsDashboard() {
     refetchOnReconnect: true,
   });
 
+  const pieData = useMemo(
+    () => [
+      { name: "Coladas", value: data?.pasted ?? 0 },
+      { name: "Faltando", value: data?.missing ?? 0 },
+      { name: "Repetidas (itens)", value: data?.repeatedCount ?? 0 },
+    ],
+    [data?.missing, data?.pasted, data?.repeatedCount],
+  );
+
   if (isLoading || stickersLoading) {
     return <Card className="h-80 animate-pulse bg-white/5" />;
   }
@@ -81,15 +90,6 @@ export function StatsDashboard() {
   if (!data || !stickersData) {
     return null;
   }
-
-  const pieData = useMemo(
-    () => [
-      { name: "Coladas", value: data.pasted },
-      { name: "Faltando", value: data.missing },
-      { name: "Repetidas (itens)", value: data.repeatedCount },
-    ],
-    [data.missing, data.pasted, data.repeatedCount],
-  );
 
   return (
     <motion.div

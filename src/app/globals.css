@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: dark;
   --background: #07111f;
   --foreground: #eef5ff;
   --muted: #9ab0d2;
   --surface: rgba(10, 18, 35, 0.78);
+  --surface-strong: rgba(14, 23, 42, 0.9);
   --surface-soft: rgba(255, 255, 255, 0.05);
   --border: rgba(255, 255, 255, 0.1);
   --accent: #59f0cf;
@@ -12,14 +14,16 @@
 }
 
 :root[data-theme="light"] {
-  --background: #eef4fb;
-  --foreground: #091427;
-  --muted: #54647f;
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-soft: rgba(8, 18, 36, 0.05);
-  --border: rgba(9, 20, 39, 0.08);
-  --accent: #118f78;
-  --accent-strong: #0b5c9a;
+  color-scheme: light;
+  --background: #d7dfea;
+  --foreground: #102033;
+  --muted: #435267;
+  --surface: rgba(245, 248, 252, 0.84);
+  --surface-strong: rgba(238, 243, 249, 0.95);
+  --surface-soft: rgba(15, 23, 42, 0.08);
+  --border: rgba(15, 23, 42, 0.16);
+  --accent: #0f766e;
+  --accent-strong: #155e75;
 }
 
 @theme inline {
@@ -41,17 +45,17 @@ body {
   background:
     radial-gradient(
       circle at top left,
-      rgba(89, 240, 207, 0.18),
+      color-mix(in srgb, var(--accent) 9%, transparent),
       transparent 30%
     ),
     radial-gradient(
       circle at top right,
-      rgba(122, 224, 255, 0.14),
+      color-mix(in srgb, var(--accent-strong) 7%, transparent),
       transparent 28%
     ),
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--background) 95%, white 5%),
+      color-mix(in srgb, var(--background) 90%, white 10%),
       var(--background)
     );
   font-family: var(--font-display), system-ui, sans-serif;
@@ -68,6 +72,60 @@ body::before {
   background-size: 40px 40px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 85%);
   opacity: 0.4;
+}
+
+:root[data-theme="light"] body::before {
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px);
+  opacity: 0.16;
+}
+
+:root[data-theme="light"] .bg-slate-950\/80,
+:root[data-theme="light"] .bg-slate-950\/60,
+:root[data-theme="light"] .bg-slate-950\/40,
+:root[data-theme="light"] .bg-slate-950\/20 {
+  background-color: var(--surface-strong) !important;
+}
+
+:root[data-theme="light"] .bg-white\/5,
+:root[data-theme="light"] .bg-white\/10 {
+  background-color: var(--surface) !important;
+}
+
+:root[data-theme="light"] .bg-white {
+  background-color: var(--surface-strong) !important;
+}
+
+:root[data-theme="light"] .bg-black\/10 {
+  background-color: rgba(15, 23, 42, 0.06) !important;
+}
+
+:root[data-theme="light"] .border-white\/10 {
+  border-color: var(--border) !important;
+}
+
+:root[data-theme="light"] .text-white,
+:root[data-theme="light"] .text-slate-100 {
+  color: var(--foreground) !important;
+}
+
+:root[data-theme="light"] .text-cyan-200,
+:root[data-theme="light"] .text-cyan-300,
+:root[data-theme="light"] .text-cyan-400 {
+  color: var(--accent) !important;
+}
+
+:root[data-theme="light"] .text-slate-300 {
+  color: var(--muted) !important;
+}
+
+:root[data-theme="light"] .text-slate-400 {
+  color: color-mix(in srgb, var(--muted) 82%, white 18%) !important;
+}
+
+:root[data-theme="light"] .shadow-slate-950\/10 {
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08) !important;
 }
 
 * {

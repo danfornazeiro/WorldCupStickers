@@ -28,18 +28,20 @@ const navItems = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    if (typeof window === "undefined") {
-      return "dark";
-    }
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
-    return (
-      (window.localStorage.getItem("figurinha-theme") as
-        | "dark"
-        | "light"
-        | null) ?? "dark"
-    );
-  });
+  // On mount, read the saved theme from localStorage and apply it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem("figurinha-theme") as
+      | "dark"
+      | "light"
+      | null;
+    if (stored && stored !== theme) {
+      setTheme(stored);
+      document.documentElement.dataset.theme = stored;
+    }
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -82,6 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={toggleTheme}
+                suppressHydrationWarning
                 className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-sm text-slate-100 transition hover:bg-white/10"
               >
                 {theme === "dark" ? (

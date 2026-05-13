@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { Providers } from "@/components/providers";
+import { ThemeInitializer } from "@/components/theme-initializer";
 import "./globals.css";
 
 const displayFont = Space_Grotesk({
@@ -40,9 +41,11 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      suppressHydrationWarning
       className={`${displayFont.variable} ${monoFont.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <ThemeInitializer />
         <Providers>
           <AppShell>{children}</AppShell>
         </Providers>

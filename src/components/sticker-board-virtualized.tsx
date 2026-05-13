@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -68,7 +69,19 @@ async function updateSticker(
   return response.json();
 }
 
-function getBadgeStyle(status: Sticker["status"]) {
+function getBadgeStyle(status: Sticker["status"], theme: "dark" | "light") {
+  if (theme === "light") {
+    switch (status) {
+      case "COLADA":
+        return "border-emerald-500/25 bg-emerald-50 text-emerald-950";
+      case "REPETIDA":
+        return "border-amber-500/25 bg-amber-50 text-amber-950";
+      case "FALTANDO":
+      default:
+        return "border-rose-500/25 bg-rose-50 text-rose-950";
+    }
+  }
+
   switch (status) {
     case "COLADA":
       return "border-emerald-400/30 bg-emerald-400/15 text-emerald-100";
@@ -122,6 +135,27 @@ function getColumns(width: number, compact: boolean) {
   return compact ? 3 : 4;
 }
 
+function useThemeMode(): "dark" | "light" {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      if (typeof document === "undefined") {
+        return () => undefined;
+      }
+
+      const observer = new MutationObserver(onStoreChange);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"],
+      });
+
+      return () => observer.disconnect();
+    },
+    () =>
+      document.documentElement.dataset.theme === "light" ? "light" : "dark",
+    () => "dark" as const,
+  );
+}
+
 const StickerCard = memo(function StickerCard({
   sticker,
   onUpdate,
@@ -133,8 +167,21 @@ const StickerCard = memo(function StickerCard({
     repeatedCount: number,
   ) => void;
 }) {
-  const badgeStyle = getBadgeStyle(sticker.status);
+  const theme = useThemeMode();
+  const badgeStyle = getBadgeStyle(sticker.status, theme);
   const currentStatus = sticker.status ?? "FALTANDO";
+  const controlButtonClass =
+    theme === "light"
+      ? "inline-flex h-8 items-center gap-1 rounded-full border border-slate-200 bg-white/90 px-3 text-xs font-medium text-slate-900 shadow-sm transition hover:bg-white"
+      : "inline-flex h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs text-current transition hover:bg-white/15";
+  const roundButtonClass =
+    theme === "light"
+      ? "inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-900 shadow-sm transition hover:bg-white"
+      : "inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-current transition hover:bg-white/15";
+  const statusPillClass =
+    theme === "light"
+      ? "shrink-0 whitespace-nowrap rounded-full border border-slate-200 bg-white/80 px-2 py-0.5 text-[9px] font-semibold text-slate-700 shadow-sm"
+      : "shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-black/10 px-2 py-0.5 text-[9px] font-medium text-current/80";
 
   return (
     <article
@@ -164,16 +211,14 @@ const StickerCard = memo(function StickerCard({
           <p className="text-[10px] uppercase tracking-[0.24em] text-current/70">
             {sticker.type}
           </p>
-          <h3 className="mt-1 truncate text-base font-semibold text-white">
+          <h3 className="mt-1 truncate text-base font-semibold text-current">
             {sticker.code}
           </h3>
           <p className="truncate text-[10px] text-current/70">
             {sticker.country}
           </p>
         </div>
-        <span className="shrink-0 whitespace-nowrap rounded-full border border-white/10 bg-black/10 px-2 py-0.5 text-[9px] font-medium text-current/80">
-          {currentStatus}
-        </span>
+        <span className={statusPillClass}>{currentStatus}</span>
       </div>
 
       <div className="mt-3 flex flex-1 flex-col justify-end gap-2">
@@ -184,7 +229,7 @@ const StickerCard = memo(function StickerCard({
               event.stopPropagation();
               onUpdate(sticker.code, "COLADA", sticker.repeatedCount);
             }}
-            className="inline-flex h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs"
+            className={controlButtonClass}
           >
             COLADA
           </button>
@@ -194,7 +239,7 @@ const StickerCard = memo(function StickerCard({
               event.stopPropagation();
               onUpdate(sticker.code, "FALTANDO", 0);
             }}
-            className="inline-flex h-8 items-center gap-1 rounded-full bg-white/10 px-3 text-xs"
+            className={controlButtonClass}
           >
             FALTA
           </button>
@@ -211,7 +256,7 @@ const StickerCard = memo(function StickerCard({
                 Math.max(1, sticker.repeatedCount + 1),
               );
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10"
+            className={roundButtonClass}
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -225,7 +270,7 @@ const StickerCard = memo(function StickerCard({
                 Math.max(0, sticker.repeatedCount - 1),
               );
             }}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/10"
+            className={roundButtonClass}
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -255,7 +300,7 @@ const StickerCard = memo(function StickerCard({
                 nextCount,
               );
             }}
-            className="inline-flex h-8 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 text-xs"
+            className={controlButtonClass}
           >
             {sticker.repeatedCount || 0}
           </button>
