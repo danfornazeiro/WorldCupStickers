@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth/next";
-import { and, eq } from "drizzle-orm";
 import { authOptions } from "@/auth";
 import { Card, SectionTitle } from "@/components/ui";
 import { computeAlbumStats } from "@/lib/album";
-import { db } from "@/lib/db";
-import { stickers, userStickers } from "@/db/schema";
+import { loadAlbumStickers, loadFamilyOverview } from "@/lib/family";
 
 type SessionUser = {
   user: {
@@ -24,23 +22,10 @@ export default async function HomePage() {
     return null;
   }
 
-  const rows = await db
-    .select({
-      id: stickers.id,
-      code: stickers.code,
-      country: stickers.country,
-      type: stickers.type,
-      status: userStickers.status,
-      repeatedCount: userStickers.repeatedCount,
-    })
-    .from(stickers)
-    .leftJoin(
-      userStickers,
-      and(
-        eq(userStickers.stickerId, stickers.id),
-        eq(userStickers.userId, session.user.id),
-      ),
-    );
+  const [rows, family] = await Promise.all([
+    loadAlbumStickers(session.user.id),
+    loadFamilyOverview(session.user.id),
+  ]);
 
   const stats = computeAlbumStats(
     rows.map((row) => ({
@@ -93,7 +78,62 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+              <Card>
+                <SectionTitle
+                  eyebrow="Acesso"
+                  title={family ? "Família ativa" : "Sem família ativa"}
+                />
+                {family ? (
+                  <div className="mt-4 space-y-3 text-sm text-slate-300">
+                    <p>
+                      Grupo: <span className="text-white">{family.name}</span>
+                    </p>
+                    <p>
+                      Código: <span className="text-white">{family.code}</span>
+                    </p>
+                    <p>
+                      Membros aprovados:{" "}
+                      <span className="text-white">{family.memberCount}</span>
+                    </p>
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <Link
+                        href="/family/manage"
+                        className="inline-flex h-10 items-center rounded-2xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
+                      >
+                        Gerenciar família
+                      </Link>
+                      <Link
+                        href="/family"
+                        className="inline-flex h-10 items-center rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
+                      >
+                        Abrir painel
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-4 space-y-3 text-sm text-slate-300">
+                    <p>
+                      Seu álbum continua individual até você criar ou entrar em
+                      uma família.
+                    </p>
+                    <div className="flex flex-wrap gap-3 pt-2">
+                      <Link
+                        href="/family/create"
+                        className="inline-flex h-10 items-center rounded-2xl bg-white px-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100"
+                      >
+                        Criar família
+                      </Link>
+                      <Link
+                        href="/family/join"
+                        className="inline-flex h-10 items-center rounded-2xl border border-white/10 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
+                      >
+                        Entrar com código
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </Card>
               {summaryCards.map((item) => (
                 <div
                   key={item.label}

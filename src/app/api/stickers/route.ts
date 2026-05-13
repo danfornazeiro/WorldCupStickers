@@ -1,10 +1,8 @@
-import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/auth";
-import { db } from "@/lib/db";
 import { filterStickers } from "@/lib/album";
-import { stickers, userStickers } from "@/db/schema";
+import { loadAlbumStickers } from "@/lib/family";
 
 type SessionUser = {
   user: {
@@ -25,23 +23,7 @@ export async function GET(request: Request) {
   const query = url.searchParams.get("query") ?? "";
   const group = url.searchParams.get("group") ?? "";
 
-  const allStickers = await db
-    .select({
-      id: stickers.id,
-      code: stickers.code,
-      country: stickers.country,
-      type: stickers.type,
-      status: userStickers.status,
-      repeatedCount: userStickers.repeatedCount,
-    })
-    .from(stickers)
-    .leftJoin(
-      userStickers,
-      and(
-        eq(userStickers.stickerId, stickers.id),
-        eq(userStickers.userId, session.user.id),
-      ),
-    );
+  const allStickers = await loadAlbumStickers(session.user.id);
 
   const filtered = filterStickers(
     allStickers.map((item) => ({

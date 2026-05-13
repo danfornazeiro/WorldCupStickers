@@ -12,7 +12,9 @@ export const config = {
     "/stickers/:path*",
     "/search/:path*",
     "/stats/:path*",
+    "/family/:path*",
     "/api/stickers/:path*",
     "/api/dashboard/:path*",
+    "/api/family/:path*",
   ],
 };

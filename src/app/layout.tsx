@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
 import { Providers } from "@/components/providers";
@@ -18,6 +18,18 @@ export const metadata: Metadata = {
   title: "Figurinhas da Copa",
   description:
     "Controle mobile-first para coleção de figurinhas da Copa do Mundo.",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#07111f",
 };
 
 export default function RootLayout({

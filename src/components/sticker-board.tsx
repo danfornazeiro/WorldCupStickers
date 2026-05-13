@@ -4,6 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, Minus, Plus, RefreshCcw, Search } from "lucide-react";
+import { toast } from "sonner";
 import { stickerGroups } from "@/lib/stickers-data";
 import { Card, Input } from "@/components/ui";
 
@@ -88,6 +89,8 @@ export function StickerBoard({
   const { data, isLoading, isFetching } = useQuery({
     queryKey,
     queryFn: () => fetchStickers(deferredSearch, group),
+    refetchInterval: 4000,
+    refetchIntervalInBackground: true,
   });
 
   const mutation = useMutation({
@@ -126,6 +129,11 @@ export function StickerBoard({
       if (context?.previous) {
         queryClient.setQueryData(queryKey, context.previous);
       }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Falha ao atualizar figurinha.",
+      );
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["stickers"] });
@@ -290,7 +298,7 @@ export function StickerBoard({
                                   {sticker.country}
                                 </p>
                               </div>
-                              <span className="rounded-full border border-white/10 bg-black/10 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-medium text-current/80 whitespace-nowrap flex-shrink-0">
+                              <span className="rounded-full border border-white/10 bg-black/10 px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] sm:text-[11px] font-medium whitespace-nowrap text-current/80 shrink-0">
                                 {sticker.status ?? "FALTANDO"}
                               </span>
                             </div>

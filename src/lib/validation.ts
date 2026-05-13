@@ -16,3 +16,18 @@ export const updateStickerSchema = z.object({
   status: z.enum(["COLADA", "FALTANDO", "REPETIDA"]),
   repeatedCount: z.number().int().min(0).default(0),
 });
+
+export const createFamilySchema = z.object({
+  name: z.string().min(3, "Informe o nome da família."),
+});
+
+export const joinFamilySchema = z.object({
+  code: z
+    .string()
+    .min(4, "Informe o código da família.")
+    .transform((value) => value.trim().toUpperCase()),
+});
+
+export const familyMemberActionSchema = z.object({
+  action: z.enum(["approve", "reject", "remove"]),
+});

@@ -1,10 +1,8 @@
-import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/auth";
 import { computeAlbumStats } from "@/lib/album";
-import { db } from "@/lib/db";
-import { stickers, userStickers } from "@/db/schema";
+import { loadAlbumStickers } from "@/lib/family";
 
 type SessionUser = {
   user: {
@@ -21,23 +19,7 @@ export async function GET() {
     return NextResponse.json({ message: "Não autenticado." }, { status: 401 });
   }
 
-  const rows = await db
-    .select({
-      id: stickers.id,
-      code: stickers.code,
-      country: stickers.country,
-      type: stickers.type,
-      status: userStickers.status,
-      repeatedCount: userStickers.repeatedCount,
-    })
-    .from(stickers)
-    .leftJoin(
-      userStickers,
-      and(
-        eq(userStickers.stickerId, stickers.id),
-        eq(userStickers.userId, session.user.id),
-      ),
-    );
+  const rows = await loadAlbumStickers(session.user.id);
 
   const stats = computeAlbumStats(
     rows.map((row) => ({

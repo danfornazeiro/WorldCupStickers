@@ -63,11 +63,15 @@ export function StatsDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ["dashboard"],
     queryFn: fetchDashboard,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const { data: stickersData, isLoading: stickersLoading } = useQuery({
     queryKey: ["stickers", { limit: 9999 }],
     queryFn: fetchStickers,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   if (isLoading || stickersLoading) {
@@ -121,7 +125,7 @@ export function StatsDashboard() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.35fr_0.95fr]">
-        <Card className="h-[360px]">
+        <Card className="h-90">
           <div className="mb-4 flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
@@ -158,7 +162,7 @@ export function StatsDashboard() {
           </ResponsiveContainer>
         </Card>
 
-        <Card className="h-[360px]">
+        <Card className="h-90">
           <div className="mb-4">
             <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
               Resumo visual

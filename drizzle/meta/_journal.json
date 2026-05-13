@@ -8,6 +8,13 @@
       "when": 1778331276444,
       "tag": "0000_next_rage",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778331276445,
+      "tag": "0001_family_mode",
+      "breakpoints": true
     }
   ]
 }

@@ -1,10 +1,11 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/auth";
-import { db } from "@/lib/db";
 import { updateStickerSchema } from "@/lib/validation";
-import { stickers, userStickers } from "@/db/schema";
+import { db } from "@/lib/db";
+import { stickers } from "@/db/schema";
+import { saveStickerState } from "@/lib/family";
+import { eq } from "drizzle-orm";
 
 type SessionUser = {
   user: {
@@ -45,23 +46,12 @@ export async function PATCH(
     );
   }
 
-  const [updated] = await db
-    .insert(userStickers)
-    .values({
-      userId: session.user.id,
-      stickerId: sticker.id,
-      status: parsed.data.status,
-      repeatedCount: parsed.data.repeatedCount,
-    })
-    .onConflictDoUpdate({
-      target: [userStickers.userId, userStickers.stickerId],
-      set: {
-        status: parsed.data.status,
-        repeatedCount: parsed.data.repeatedCount,
-        updatedAt: new Date(),
-      },
-    })
-    .returning();
+  const updated = await saveStickerState(
+    session.user.id,
+    sticker.id,
+    parsed.data.status,
+    parsed.data.repeatedCount,
+  );
 
   return NextResponse.json({ sticker: updated });
 }

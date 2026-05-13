@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   BookOpenText,
   LayoutDashboard,
+  Users,
   LogOut,
   MoonStar,
   Search,
@@ -18,6 +19,7 @@ import Image from "next/image";
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/stickers", label: "Figurinhas", icon: BookOpenText },
+  { href: "/family", label: "Família", icon: Users },
   { href: "/search", label: "Busca", icon: Search },
   { href: "/stats", label: "Estatísticas", icon: Sparkles },
 ];
@@ -53,8 +55,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 pb-8 pt-4 sm:px-6 lg:px-8">
-        <header className="sticky top-0 z-30 rounded-[32px] border border-white/10 bg-slate-950/60 px-4 py-3 backdrop-blur-xl">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+        <header className="sticky top-0 z-30 rounded-4xl border border-white/10 bg-slate-950/60 px-4 py-3 backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <Link href="/" className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl shadow-lg shadow-cyan-500/25">
                 <Image
@@ -74,7 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </p>
               </div>
             </Link>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex shrink-0 items-center gap-2">
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -115,7 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex flex-shrink-0 min-w-max items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
+                  className={`inline-flex shrink-0 min-w-max items-center gap-2 rounded-full px-4 py-2 text-sm transition ${
                     active
                       ? "bg-white text-slate-950"
                       : "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
