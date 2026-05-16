@@ -22,10 +22,24 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      {
+        url: "/icon-192x192_copy-removebg-preview.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/icon-512x512_copy-removebg-preview.png",
+        sizes: "512x512",
+        type: "image/png",
+      },
     ],
-    apple: [{ url: "/icon-192x192.png", sizes: "192x192", type: "image/png" }],
+    apple: [
+      {
+        url: "/icon-192x192_copy-removebg-preview.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+    ],
   },
 };
 
