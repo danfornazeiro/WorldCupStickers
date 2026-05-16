@@ -211,7 +211,7 @@ const StickerCard = memo(function StickerCard({
           <p className="text-[10px] uppercase tracking-[0.24em] text-current/70">
             {sticker.type}
           </p>
-          <h3 className="mt-1 truncate text-base font-semibold text-current">
+          <h3 className="mt-1 text-base font-semibold text-current">
             {sticker.code}
           </h3>
           <p className="truncate text-[10px] text-current/70">
