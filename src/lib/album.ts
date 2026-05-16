@@ -83,7 +83,7 @@ export function filterStickers(
 ) {
   const normalizedQuery = query.trim().toLowerCase();
 
-  return stickers.filter((sticker) => {
+  const filtered = stickers.filter((sticker) => {
     const matchesQuery =
       !normalizedQuery ||
       sticker.code.toLowerCase().includes(normalizedQuery) ||
@@ -92,5 +92,25 @@ export function filterStickers(
     const matchesGroup = !group || sticker.type === group;
 
     return matchesQuery && matchesGroup;
+  });
+
+  // Sort stickers numerically by their code number
+  return filtered.sort((a, b) => {
+    const typeA = a.type;
+    const typeB = b.type;
+
+    // If different types, maintain original order by type
+    if (typeA !== typeB) {
+      return (
+        stickerGroups.findIndex((g) => g.code === typeA) -
+        stickerGroups.findIndex((g) => g.code === typeB)
+      );
+    }
+
+    // Same type, sort numerically
+    const numA = parseInt(a.code.slice(typeA.length), 10);
+    const numB = parseInt(b.code.slice(typeB.length), 10);
+
+    return numA - numB;
   });
 }
